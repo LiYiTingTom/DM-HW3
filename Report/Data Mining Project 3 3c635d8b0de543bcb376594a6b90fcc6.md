@@ -1,0 +1,637 @@
+# Data Mining Project 3
+
+# Find a way
+
+## Method
+
+Add links to **Node_1** for each nodes.
+
+## Graph 1
+
+### Before link every nodes to node1
+
+![graph1_1.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph1_1.png)
+
+Authority:  [0.  0.2 0.  0.2 0.  0.2 0.  0.2 0.  0.2]
+Hub:           [0.2 0.  0.2 0.  0.2 0.  0.2 0.  0.2 0. ]
+PageRank: [0.07 0.13 0.07 0.13 0.07 0.13 0.07 0.13 0.07 0.13]
+
+### After link every nodes to node1
+
+![graph1_2.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph1_2.png)
+
+Authority:[0.149 0.149 0.    0.175 0.    0.175 0.    0.175 0.    0.175]
+Hub:      [0.588 0.    0.103 0.    0.103 0.    0.103 0.    0.103 0.   ]
+PageRank: [0.143 0.081 0.061 0.133 0.061 0.133 0.061 0.133 0.061 0.133]
+
+## Graph 2
+
+### Before link every nodes to node1
+
+![graph_2_1.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_2_1.png)
+
+Authority:   [0.  0.2 0.2 0.  0.2 0.  0.2 0.  0.2 0. ]
+Hub:           [0.2 0.  0.  0.2 0.  0.2 0.  0.2 0.  0.2]
+PageRank: [0.06  0.261 0.11  0.06  0.11  0.06  0.11  0.06  0.11  0.06 ]
+
+### After link every nodes to node1
+
+![graph_2_2.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_2_2.png)
+
+Authority:[0.177 0.    0.177 0.    0.215 0.    0.215 0.    0.215 0.   ]
+Hub:      [0.608 0.    0.    0.131 0.    0.131 0.    0.131 0.    0.   ]
+PageRank: [0.134 0.214 0.076 0.053 0.121 0.053 0.121 0.053 0.121 0.053]
+
+## Graph 3
+
+### Before link every nodes to node1
+
+![graph_3_1.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_3_1.png)
+
+Authority:[0.    0.167 0.167 0.    0.    0.167 0.167 0.    0.    0.167 0.167 0.   ]
+Hub:      [0.167 0.    0.    0.167 0.167 0.    0.    0.167 0.167 0.    0.    0.167]
+PageRank: [0.043 0.168 0.079 0.043 0.043 0.168 0.079 0.043 0.043 0.168 0.079 0.043]
+
+### After link every nodes to node1
+
+![graph_3_2.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_3_2.png)
+
+Authority:[0.219 0.    0.219 0.    0.    0.    0.281 0.    0.    0.    0.281 0.   ]
+Hub:      [0.64 0.   0.   0.   0.18 0.   0.   0.   0.18 0.   0.   0.  ]
+PageRank: [0.116 0.143 0.064 0.039 0.039 0.143 0.097 0.039 0.039 0.143 0.097 0.039]
+
+## Graph 4
+
+### Before link every nodes to node1
+
+![graph_4_1.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_4_1.png)
+
+Authority:[0.139 0.178 0.201 0.14  0.201 0.056 0.084]
+Hub:      [0.275 0.048 0.109 0.199 0.184 0.117 0.069]
+PageRank: [0.28  0.159 0.139 0.108 0.184 0.061 0.069]
+
+### After link every nodes to node1
+
+![graph_4_2.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/graph_4_2.png)
+
+Authority:[0.246 0.16  0.175 0.109 0.202 0.049 0.06 ]
+Hub:      [0.195 0.068 0.112 0.217 0.16  0.124 0.124]
+PageRank: [0.32  0.155 0.132 0.109 0.154 0.054 0.076]
+
+# Algorithm description
+
+## Some thing else
+
+### Node Class
+
+1. Just a normal node object.
+
+```python
+class Node:
+    """Node object.
+
+    Parameters
+    ----------
+    tag : Union[str, int]
+        The tag for this node.
+    """
+    def __init__(self, tag: Union[str, int]):
+        self.tag = tag
+        self.to_dict = dict()
+        self.from_dict = dict()
+        self.auth = 1.0
+        self.hub = 1.0
+        self.pr = 1.0
+
+    def __eq__(self, o):
+        if isinstance(o, Node):
+            return self.tag == o.tag
+        return self.tag == o
+
+    def to_(self, to_n: Node):
+        """Connect self to `to_n` node.
+
+        Parameters
+        ----------
+        to_n : Node
+            The target to be connected.
+        """
+        self.to_dict[to_n.tag] = to_n
+
+    def from_(self, from_n: Node):
+        """Connect self from `from_n` node.
+
+        Parameters
+        ----------
+        from_n : Node
+            The target to connect.
+        """
+        self.from_dict[from_n.tag] = from_n
+
+    def set_auth(self) -> None:
+        """Update the authority value."""
+        self.auth = sum(node.hub for node in self.from_dict.values())
+
+    def set_hub(self) -> None:
+        """Update the hub value."""
+        self.hub = sum(node.auth for node in self.to_dict.values())
+
+    def set_pr(self, d: float, n: float) -> None:
+        """Update the page rank value."""
+        in_neighbors = self.from_dict.values()
+        pr_sum = sum((node.pr / len(node.to_dict))
+                     for node in in_neighbors)
+        rand_jump = d / n
+        self.pr = rand_jump + (1-d) * pr_sum
+```
+
+### Graph Class
+
+1. read file line by line.
+2. the first item would be the from_node and the other would be the to_node.
+3. add the edge from from_node to to_node for this graph.
+
+```python
+class Graph:
+    """The Graph object."""
+    def __init__(self):
+        self.nodes = dict()
+
+    @staticmethod
+    def init(filename):
+        """Initialize a new graph by file.
+
+        Parameters
+        ----------
+        filename : str
+            The target file path.
+
+        Returns
+        -------
+        Graph
+            The graph object generated by filename
+        """
+				graph = Graph()
+        
+				with open(filename) as f:
+            lines = f.readlines()
+		
+        # add the edges from file.
+        for line in lines:
+            graph.add_edge(*line.strip().split(','))
+
+				# sort the nodes by tag.
+				graph.nodes.sort(key=lambda node: node.tag)
+
+        return graph
+
+    def __len__(self):
+        return len(self.nodes)
+
+    def add_edge(self, from_: Union[int, str], to_: Union[int, str]) -> None:
+        """Add edge into graph.
+
+        Parameters
+        ----------
+        from_ : Union[int, str]
+            The tag of `from node`.
+        to_ : Union[int, str]
+            The tag of `to_node`.
+        """
+        # transform to int type.
+        from_tag = int(from_)
+        to_tag = int(to_)
+
+        # get the node from node dictionary.
+        from_n = self.nodes.get(from_tag, Node(from_tag))
+        to_n = self.nodes.get(to_tag, Node(to_tag))
+
+        # update node dictionary.
+        self.nodes[from_tag] = from_n
+        self.nodes[to_tag] = to_n
+
+        # node connection.
+        from_n.to_(to_n)
+        to_n.from_(from_n)
+
+    def to_numpy(self) -> np.array:
+        """to numpy array.
+
+        Returns
+        -------
+        np.array
+            A 2-dim array with `column 1 is from node`
+            and `column 2 is to node`.
+        """
+        result = []
+        for node in self.nodes.values():
+            for to_n in node.to_dict.values():
+                result.append([node.tag, to_n.tag])
+        return np.array(result)
+```
+
+### Algorithm Class
+
+1. An abstract class.
+2. with graph object, iteration times and nodes from graph object.
+3. every object which enharitance this object need to implement the iterate function for each iteration.
+
+```python
+class Algorithm(abc.ABC):
+    """The Algorithm ABC.
+
+    Parameters
+    ----------
+    graph : utils.Graph
+        The graph object.
+    iteration : Optional[int], optional
+        The iteration times, by default 100
+    """
+
+    def __init__(self,
+                 graph: utils.Graph,
+                 iteration: Optional[int] = 100):
+
+        self.graph = graph
+        self.nodes = graph.nodes.values()
+        self.iteration = int(iteration)
+
+    @abc.abstractmethod
+    def iterate(self) -> None:
+        """The iterated function for each iteration."""
+        pass
+```
+
+### main function
+
+1. parse the arguments.
+2. generate the graph object from target file.
+3. compute authorithy, hub, page rank and similarity rank matrix.
+4. save results into specific directories.
+
+```python
+if __name__ == '__main__':
+    # Arguments parsing.
+    args = utils.parse_argurments()
+    in_file = args.in_file
+    iteration = args.iter
+
+    # Get graph object.
+    graph = utils.Graph.init(in_file)
+    print('read file from:', in_file)
+
+    # HITS
+    hits = algos.HITS(
+        graph=graph,
+        iteration=iteration)
+    auth_list, hub_list = hits.get_auth_hub_list()
+    print(f'HITS:\n\tAuthority:{auth_list}\n\tHub:      {hub_list}')
+
+    # PageRank
+    pr = algos.PageRank(
+        graph=graph,
+        damping_factor=args.damp_fac,
+        iteration=iteration)
+    pr_list = pr.get_pr_arr()
+    print('\nPR:\n\tPageRank:', pr_list)
+
+    # SimRank
+    sim = algos.SimMatrix(
+        graph=graph,
+        decay_fac=args.decay_fac)
+
+    sr = algos.SimRank(
+        graph=graph,
+        iteration=iteration,
+        sim=sim)
+
+    sim_mat = sr.get_sim_matrix()
+    print('\nSimRank:\n', sim_mat)
+
+    # to files.
+    utils.to_file(
+        file_name=in_file.split('/')[-1].split('.')[0],
+        record_txt=[
+            ('_HITS_authority.txt', auth_list),
+            ('_HITS_hub.txt', hub_list),
+            ('_PageRank.txt', pr_list),
+            ('_SimRank.txt', sim_mat, '\n'),
+        ])
+```
+
+## HITS
+
+1. start with each node having a hub score and authority value of 1.
+2. update the hub(sum up the hub value node values for each node in current node’s parent nodes) and authority(sum up the authority value node values for each node in current node’s children nodes) values
+3. normalize the values.
+4. repeat until to specific iteration.
+
+```python
+class HITS(Algorithm):
+    """HITS Algorithm
+
+    Parameters
+    ----------
+    graph : utils.Graph
+        The graph object
+    iteration : Optional[int], optional
+        The iteration times, by default 100
+    """
+
+    def __init__(self,
+                 graph: utils.Graph,
+                 iteration: Optional[int] = 100):
+        super().__init__(graph, iteration)
+
+    def iterate(self) -> None:
+        for _ in range(self.iteration):
+            nodes = self.nodes
+            for node in nodes:
+                node.set_auth()
+            for node in nodes:
+                node.set_hub()
+            self.norm_auth_hub()
+
+    def get_auth_hub_list(self) -> Tuple[np.array]:
+        """Get the authority and hub array.
+
+        Returns
+        -------
+        Tuple[np.array]
+            The authority array and hub array.
+        """
+        self.iterate()
+        auth_list = np.asarray([node.auth for node in self.nodes])
+        hub_list = np.asarray([node.hub for node in self.nodes])
+
+        return np.round(auth_list, 3), np.round(hub_list, 3)
+
+    def norm_auth_hub(self):
+        """Normalized the auth and hub value."""
+        auth_sum = sum(node.auth for node in self.nodes)
+        hub_sum = sum(node.hub for node in self.nodes)
+
+        for node in self.nodes:
+            node.auth /= auth_sum
+            node.hub /= hub_sum
+```
+
+## Page Rank
+
+1. $PR(p_i)=\frac{1-d}{N}+d*  \sum_{p_j\in in(p_i)}\frac{PR(p_j)}{|out(p_j)|}$, the page rank of a node $p_i$ is equal to (1 - damping factor)/(number of nodes) + damping factor * (the sum of each page $p_j$’s page rank, where $p_j$ links to $p_i$, divided over the number of outbound links of $p_j$)
+2. $p_1, p_2, \dots, p_n$, are the nodes under consideration.
+3. $in(p_i)$ is the set of nodes that link to node $p_j$.
+4. $|out(p_j)|$ is the number of outbound links on node $p_j$.
+5. $N$ is total number of nodes.
+6. The page rank of a page $p_i$ is equal to (1 - damping factor)/(number of nodes) + damping factor * (the sum of each page $p_j$’s page rank, where $p_j$ links to $p_i$, divided over the number of outbound links of $p_j$)
+
+```python
+class PageRank(Algorithm):
+    """Page Rank Algorithm.
+
+    Parameters
+    ----------
+    graph : utils.Graph
+        The graph object
+    iteration : Optional[int], optional
+        The iteration times, by default 100
+    damping_factor : Optional[float], optional
+        The factor of damping, by default .15
+    """
+
+    def __init__(self,
+                 graph: utils.Graph,
+                 iteration: Optional[int] = 100,
+                 damping_factor: Optional[float] = .15):
+
+        super().__init__(graph, iteration)
+        self.d = damping_factor
+
+    def iterate(self) -> None:
+        for _ in range(self.iteration):
+            for node in self.nodes:
+                node.set_pr(self.d, len(self.nodes))
+            self.norm_pr()
+
+    def get_pr_arr(self):
+        """Get the page rank(pr) array.
+
+        Returns
+        -------
+        np.array
+            The page rank array.
+        """
+        self.iterate()
+        return np.round(np.array([node.pr for node in self.nodes]), 3)
+
+    def norm_pr(self):
+        """Normalize the page rank value."""
+        pr_sum = sum(node.pr for node in self.nodes)
+
+        for node in self.nodes:
+            node.pr /= pr_sum
+```
+
+## Sim Rank
+
+1. If $a$ is equal to $b$ then $S(a,b)$ is defined to be 1, and o.w. would be $S(a,b)=\frac{C}{|I(a)||I(b)}\sum_{i=1}^{|I(a)|}\sum_{j=1}^{|I(b)|}S(I_i(a),\ I_j(b))$
+2. $C$ is a constant between 0 to 1. 
+3. either $a$, $b$ may not have any in-neighbors(the from_nodes which was defined in source code), since we have no way similarity between $a$ and $b$ in this case, we set $S(a, b)=0$, so we define the summation in above equation to be 0 when $I(a)=\phi$ or $I(b)=\phi$.
+
+```python
+class SimMatrix:
+    """SimMatrix object.
+
+    Parameters
+    ----------
+    graph : utils.Graph
+        The graph object.
+    decay_fac : float
+        The factor of decay.
+    """
+
+    def __init__(self,
+                 graph: utils.Graph,
+                 decay_fac: float):
+        self.decay_fac = decay_fac
+        self.node_map = dict(zip(graph.nodes.keys(), range(len(graph))))
+        self.sim = np.eye(len(graph))
+        self.sim__ = np.zeros(shape=[len(graph), len(graph)])
+
+    def chagnge_sim_mat(self) -> None:
+        """change the original sim matrix to updated sim matrix."""
+        self.sim = copy.deepcopy(self.sim__)
+
+    def compute_sr(self,
+                   n1: utils.Node,
+                   n2: utils.Node) -> float:
+        """Compute the Sim Rank.
+
+        Parameters
+        ----------
+        n1 : utils.Node
+            The first node.
+        n2 : utils.Node
+            The second node.
+
+        Returns
+        -------
+        float
+            The Sim Rank.
+        """
+        # n1 and n2 are the same node.
+        if n1.tag == n2.tag:
+            return 1.0
+
+        # get there in neighbors.
+        tags1 = n1.from_dict.keys()
+        tags2 = n2.from_dict.keys()
+
+        # check the in neighbors is empty or not.
+        if not tags1 or not tags2:
+            return 0.0
+
+        # compute the sum of sim rank.
+        sr_sum = 0
+        for t1 in tags1:
+            for t2 in tags2:
+                sr_sum += self.sim[self.node_map[t1]][self.node_map[t2]]
+
+        # compute the scalered sim rank.
+        return (self.decay_fac / (len(tags1) * len(tags2))) * sr_sum
+
+    def update_sim(self,
+                   n1: utils.Node,
+                   n2: utils.Node,
+                   value: float) -> None:
+        """update the sim matrix.
+
+        Parameters
+        ----------
+        n1 : utils.Node
+            The first node.
+        n2 : utils.Node
+            The second node.
+        value : float
+            The target value.
+        """
+        self.sim__[self.node_map[n1.tag]][self.node_map[n2.tag]] = value
+
+class SimRank(Algorithm):
+    """Sim Rank Algorithm.
+
+    Parameters
+    ----------
+    graph : utils.Graph
+        The graph object
+    iteration : Optional[int], optional
+        The iteration times, by default 100
+    sim : Optional[SimMatrix], optional
+        The SimMatrix object, by default None
+    """
+
+    def __init__(self, graph: utils.Graph,
+                 iteration: Optional[int] = 100,
+                 sim: Optional[SimMatrix] = None):
+
+        super().__init__(graph, iteration)
+        self.sim = sim
+
+    def iterate(self):
+        for _ in range(self.iteration):
+            for n1 in self.nodes:
+                for n2 in self.nodes:
+                    self.sim.change_sim_mat(n1, n2, self.sim.compute_sr(n1, n2)
+            self.sim.replace_sim()
+
+    def get_sim_matrix(self):
+        """Get the sim matrix after sim rank iteration.
+
+        Returns
+        -------
+        np.array
+            The Sim Rank Matrix.
+        """
+        self.iterate()
+        return np.round(np.asarray(self.sim.sim__), 3)
+```
+
+# Result analysis and discussion
+
+## The effect of damping factor
+
+From these graphs we could know the closer to 1.0 of damping factor the closer of each page rank have.
+
+![ra_damping factor_1.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/ra_damping_factor_1.png)
+
+![ra_damping factor_2.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/ra_damping_factor_2.png)
+
+![ra_damping factor_3.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/ra_damping_factor_3.png)
+
+![4.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/4.png)
+
+## The effection of decay factor
+
+From these videos we could know that the larger decay factor would cause the large simularity to each others for each nodes.
+
+![merged.gif](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/merged.gif)
+
+![merged (1).gif](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/merged_(1).gif)
+
+![merged (2).gif](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/merged_(2).gif)
+
+![merged (3).gif](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/merged_(3).gif)
+
+# Effectiveness analysis
+
+1. The iteration is proportional to the computation time.
+2. The number of edges would be an impact for these three algorithms.
+
+![effectiveness.png](Data%20Mining%20Project%203%203c635d8b0de543bcb376594a6b90fcc6/effectiveness.png)
+
+[Runtime of each iteration](https://www.notion.so/ef1e367fcce84af78e386f312e2b28e6)
+
+# Discussion and experience
+
+## More limitations about link analysis algorithms
+
+### PageRank
+
+1. PageRank scores are not calculated at the time of search
+2. PageRank is inability to handle queries containing natural language and information outside of keywords.
+
+### HTIS
+
+1. purely link-based algorithm which do not think about the content of the page so that resulting in the problem of topic drift.
+2. The query time evaluation is expensive.
+3. The rating or scores of authorities and hubs could rise due to flaws done by the web page designer.
+4. A situation may occur when a page that contains links to a large number of separate topics may receive a high hub rank which is not relevant to the given query.
+5. HITS emphasizes mutual reinforcement between authority and hub webpages.
+
+### SimRank
+
+1. there are many redundant computations during the traversal, since each node may traverse to any other node to identify the probability several times
+2. the length of $\sqrt{C}$-walk $W(a)$ and the length of $\sqrt{C}$-walk $W(b)$ determine the computation time of
+$S(a, b)$, where these lengths can be quite large.
+
+## Can link analysis algorithms really find the “important”
+pages from Web?
+
+        These three algorithms only consider the page link, without other informations like natural language etc. these algorithms only can describe the association between each other, therefore they can not really find the important pages from websites by your search, it must be combined with other techniques.
+
+## What are practical issues when implement these
+algorithms in a real Web?
+
+Since these three algorithms are easy to describe the association between a domain of webpages.
+
+### Any new idea about the link analysis algorithm?
+
+In my opinion the drawbacks of these algorithms is the lack of searching keyword information, maybe combine the NCF(Neural Collaborative Filtering) to grab some information from the user would be much more suite for the searching results.
+
+### What is the effect of “C” parameter in SimRank?
+
+The recommendation for using a smaller decay factor is approved from the viewpoint of similarity scores quality by the experimental results obtained in D. Fogaras and B. R´acz. Scaling link-based similarity search. In WWW ’05: Proceedings of the 14th international conference on World Wide Web, pages 641–650, New York, NY, USA, 2005. ACM.
+
+## Experience
+
+These algorithms are very easy to understand but could describe the association between each webpages in a network, if they could say the association between webpages then they also must could find the relationship between each person who in a social network . Since the flourish of social network algorithms we could combine the hashtags into these algorithms to enhance the informations for they.
